@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>珍藏品價值管理系統</title>
+    <!-- 引入 Tailwind CSS 進行美化 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Font Awesome 圖標庫 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .item-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- 導覽列 -->
+    <nav class="bg-indigo-700 text-white p-4 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i class="fas fa-gem"></i> 珍藏家估算系統
+            </h1>
+            <div class="text-sm opacity-80">
+                本地動態儲存版
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要內容區 -->
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+        
+        <!-- 數據統計面板 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-indigo-500">
+                <p class="text-slate-500 text-sm mb-1">收藏品總數</p>
+                <h2 id="total-count" class="text-3xl font-bold text-indigo-900">0</h2>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-emerald-500">
+                <p class="text-slate-500 text-sm mb-1">預估總價值 (TWD)</p>
+                <h2 id="total-value" class="text-3xl font-bold text-emerald-600">$ 0</h2>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-amber-500">
+                <p class="text-slate-500 text-sm mb-1">平均單件價值</p>
+                <h2 id="avg-value" class="text-3xl font-bold text-amber-600">$ 0</h2>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <!-- 左側：新增收藏品表單 -->
+            <div class="lg:w-1/3">
+                <div class="glass-morphism p-6 rounded-2xl shadow-md sticky top-24">
+                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <i class="fas fa-plus-circle text-indigo-600"></i> 新增收藏品
+                    </h3>
+                    <form id="add-item-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">名稱</label>
+                            <input type="text" id="name" required class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="例如：限量版公仔、黑魔導女孩">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">類別</label>
+                            <select id="category" class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <option value="卡牌/模型">卡牌/模型</option>
+                                <option value="古董/藝術品">古董/藝術品</option>
+                                <option value="錢幣/郵票">錢幣/郵票</option>
+                                <option value="奢侈品/手錶">奢侈品/手錶</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">購入價格 / 市場基準價 (TWD)</label>
+                            <input type="number" id="base-price" required class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="請輸入數值">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">稀有度</label>
+                                <select id="rarity" class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    <option value="1.0">普通 (x1.0)</option>
+                                    <option value="1.5">稀有 (x1.5)</option>
+                                    <option value="3.0">傳奇 (x3.0)</option>
+                                    <option value="10.0">唯一 (x10.0)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">保存狀況</label>
+                                <select id="condition" class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    <option value="1.0">全新 (100%)</option>
+                                    <option value="0.8">良好 (80%)</option>
+                                    <option value="0.5">普通 (50%)</option>
+                                    <option value="0.2">受損 (20%)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow-md">
+                            加入收藏並估價
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 右側：收藏清單顯示 -->
+            <div class="lg:w-2/3">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">我的收藏清單</h3>
+                    <div class="text-xs text-slate-500 bg-slate-200 px-2 py-1 rounded">
+                        公式：基準價 × 稀有度 × 保存係數
+                    </div>
+                </div>
+                
+                <div id="collection-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- 項目會動態生成於此 -->
+                </div>
+
+                <!-- 查無資料時的提示 -->
+                <div id="empty-state" class="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-200">
+                    <i class="fas fa-box-open text-5xl text-slate-300 mb-4"></i>
+                    <p class="text-slate-500">目前沒有收藏紀錄，快從左側表單新增吧！</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 提示框 -->
+    <div id="toast" class="fixed bottom-8 right-8 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none z-50">
+        提示訊息
+    </div>
+
+    <!-- JavaScript 邏輯 -->
+    <script>
+        // 利用瀏覽器的 LocalStorage 實現資料持久化
+        let collections = JSON.parse(localStorage.getItem('my_collections')) || [];
+
+        const form = document.getElementById('add-item-form');
+        const listContainer = document.getElementById('collection-list');
+        const emptyState = document.getElementById('empty-state');
+        const totalCountEl = document.getElementById('total-count');
+        const totalValueEl = document.getElementById('total-value');
+        const avgValueEl = document.getElementById('avg-value');
+        const toast = document.getElementById('toast');
+
+        // 初始化渲染
+        function init() {
+            render();
+        }
+
+        // 監聽表單提交
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const category = document.getElementById('category').value;
+            const basePrice = parseFloat(document.getElementById('base-price').value);
+            const rarity = parseFloat(document.getElementById('rarity').value);
+            const condition = parseFloat(document.getElementById('condition').value);
+
+            // 計算預估價值
+            const estimatedValue = Math.round(basePrice * rarity * condition);
+
+            const newItem = {
+                id: Date.now(),
+                name,
+                category,
+                basePrice,
+                rarity,
+                condition,
+                estimatedValue,
+                date: new Date().toLocaleDateString()
+            };
+
+            // 將新項目插入至陣列頂部
+            collections.unshift(newItem);
+            
+            // 儲存至本地瀏覽器
+            saveToStorage();
+            form.reset();
+            showToast('成功新增收藏，價值已自動估算！');
+            render();
+        });
+
+        // 刪除項目
+        function deleteItem(id) {
+            collections = collections.filter(item => item.id !== id);
+            saveToStorage();
+            showToast('已移除該項收藏');
+            render();
+        }
+
+        // 將資料寫入 LocalStorage
+        function saveToStorage() {
+            localStorage.setItem('my_collections', JSON.stringify(collections));
+        }
+
+        // 渲染收藏卡片
+        function render() {
+            if (collections.length === 0) {
+                listContainer.innerHTML = '';
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                listContainer.innerHTML = collections.map(item => `
+                    <div class="item-card bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="px-2 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded">${item.category}</span>
+                                <button onclick="deleteItem(${item.id})" class="text-slate-300 hover:text-red-500 transition">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-lg mb-1">${item.name}</h4>
+                            <p class="text-xs text-slate-400 mb-4"><i class="far fa-calendar-alt mr-1"></i> 登記日期：${item.date}</p>
+                            
+                            <div class="space-y-2 text-sm text-slate-600 border-t border-slate-50 pt-3">
+                                <div class="flex justify-between">
+                                    <span>稀有度係數：</span>
+                                    <span class="font-medium text-slate-900">${getRarityLabel(item.rarity)}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>保存狀況：</span>
+                                    <span class="font-medium text-slate-900">${getConditionLabel(item.condition)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 pt-4 border-t border-slate-100">
+                            <p class="text-xs text-slate-400">當前預估價值</p>
+                            <p class="text-2xl font-black text-indigo-600">$ ${item.estimatedValue.toLocaleString()}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateStats();
+        }
+
+        // 更新頂部統計面板
+        function updateStats() {
+            const count = collections.length;
+            const total = collections.reduce((sum, item) => sum + item.estimatedValue, 0);
+            const avg = count > 0 ? Math.round(total / count) : 0;
+
+            totalCountEl.innerText = count;
+            totalValueEl.innerText = `$ ${total.toLocaleString()}`;
+            avgValueEl.innerText = `$ ${avg.toLocaleString()}`;
+        }
+
+        // 取得稀有度標籤
+        function getRarityLabel(val) {
+            if (val >= 10) return "唯一 (x10.0)";
+            if (val >= 3) return "傳奇 (x3.0)";
+            if (val >= 1.5) return "稀有 (x1.5)";
+            return "普通 (x1.0)";
+        }
+
+        // 取得保存狀況標籤
+        function getConditionLabel(val) {
+            if (val >= 1) return "全新 (100%)";
+            if (val >= 0.8) return "良好 (80%)";
+            if (val >= 0.5) return "普通 (50%)";
+            return "受損 (20%)";
+        }
+
+        // 彈出式 Toast 提示
+        function showToast(msg) {
+            toast.innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        // 頁面加載完成後啟動初始化
+        window.onload = init;
+    </script>
+</body>
+</html>
